@@ -7,7 +7,7 @@
   <version>1.3.0</version>
   <packaging>jar</packaging>
   <name>UltimatePixelmonRating</name>
-  <description>Pixelmon Elo + Tier + Season + GUI Rewards + Arenas + Return & Results</description>
+  <description>Pixelmon Elo + Tier + Season + GUI Rewards + Arenas + Return &amp; Results</description>
   <properties>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
