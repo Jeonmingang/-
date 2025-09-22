@@ -2,7 +2,7 @@
 set -euo pipefail
 DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$DIR"
-echo "[*] Building UltimatePixelmonRating v1.5.6 (Java 8 / Spigot 1.16.5)"
+echo "[*] Building UltimatePixelmonRating v1.5.8 (Java 8 / Spigot 1.16.5)"
 mvn -q -DskipTests package
 OUT="$DIR/out"
 mkdir -p "$OUT"
