@@ -6,7 +6,7 @@ echo "[*] Building UltimatePixelmonRating v1.5.6 (Java 8 / Spigot 1.16.5)"
 mvn -q -DskipTests package
 OUT="$DIR/out"
 mkdir -p "$OUT"
-cp target/UltimatePixelmonRating-1.5.6.jar "$OUT/"
+cp target/UltimatePixelmonRating-1.5.8.jar "$OUT/"
 cp src/main/resources/config.yml "$OUT/"
 cp src/main/resources/rewards.yml "$OUT/"
 cp src/main/resources/arenas.yml "$OUT/"
