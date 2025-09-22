@@ -1,145 +1,105 @@
-
 package com.minkang.ultimate.pixelrating;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.logging.Level;
 
 public class ArenaManager {
-    public static class Arena {
-        public String name;
-        public boolean enabled = true;
-        public Location p1;
-        public Location p2;
-        public Location stage;
-        public Location spec;
-    }
-
     private final UltimatePixelmonRatingPlugin plugin;
-    private File file;
-    private FileConfiguration conf;
+    private final File arenasFile;
+    private YamlConfiguration yml;
     private final Map<String, Arena> arenas = new LinkedHashMap<>();
 
-    public ArenaManager(UltimatePixelmonRatingPlugin plugin) { this.plugin = plugin; }
+    public ArenaManager(UltimatePixelmonRatingPlugin plugin) {
+        this.plugin = plugin;
+        this.arenasFile = new File(plugin.getDataFolder(), "arenas.yml");
+    }
 
     public void load() {
-        file = new File(plugin.getDataFolder(), "arenas.yml");
-        if (!file.exists()) plugin.saveResource("arenas.yml", false);
-        conf = YamlConfiguration.loadConfiguration(file);
+        ensureFileReady();
+        this.yml = YamlConfiguration.loadConfiguration(arenasFile);
         arenas.clear();
-        ConfigurationSection root = conf.getConfigurationSection("arenas");
-        if (root != null) {
-            for (String key : root.getKeys(false)) {
-                ConfigurationSection cs = root.getConfigurationSection(key);
-                Arena a = new Arena();
-                a.name = key;
-                a.enabled = cs.getBoolean("enabled", true);
-                a.p1 = readLoc(cs.getConfigurationSection("spawns.p1"));
-                a.p2 = readLoc(cs.getConfigurationSection("spawns.p2"));
-                a.stage = readLoc(cs.getConfigurationSection("spawns.stage"));
-                a.spec = readLoc(cs.getConfigurationSection("spawns.spec"));
-                arenas.put(key.toLowerCase(), a);
+        ConfigurationSection sec = yml.getConfigurationSection("arenas");
+        if (sec != null) {
+            for (String id : sec.getKeys(false)) {
+                Arena a = Arena.fromConfig(id, sec.getConfigurationSection(id));
+                arenas.put(id.toLowerCase(Locale.ROOT), a);
             }
         }
+        plugin.getLogger().info("[UPR] Arenas loaded: " + arenas.size());
     }
 
-    public void save() {
-        conf.set("arenas", null);
-        for (Arena a : arenas.values()) {
-            String base = "arenas." + a.name;
-            conf.set(base + ".enabled", a.enabled);
-            writeLoc(base + ".spawns.p1", a.p1);
-            writeLoc(base + ".spawns.p2", a.p2);
-            writeLoc(base + ".spawns.stage", a.stage);
-            writeLoc(base + ".spawns.spec", a.spec);
+    public synchronized void save() {
+        ensureFileReady();
+        if (this.yml == null) this.yml = new YamlConfiguration();
+        this.yml.set("arenas", null);
+        ConfigurationSection sec = this.yml.createSection("arenas");
+        for (Map.Entry<String, Arena> e : arenas.entrySet()) {
+            ConfigurationSection s = sec.createSection(e.getKey());
+            e.getValue().toConfig(s);
         }
-        try { conf.save(file); } catch (IOException e) { plugin.getLogger().severe("Failed to save arenas.yml: " + e.getMessage()); }
+        try {
+            this.yml.save(arenasFile);
+        } catch (IOException ex) {
+            plugin.getLogger().log(Level.SEVERE, "[UPR] Failed to save arenas.yml", ex);
+        }
     }
 
-    public boolean create(String name) {
-        String key = name.toLowerCase();
-        if (arenas.containsKey(key)) return false;
-        Arena a = new Arena();
-        a.name = name;
-        a.enabled = true;
+    private void ensureFileReady() {
+        if (!plugin.getDataFolder().exists()) plugin.getDataFolder().mkdirs();
+        try {
+            if (!arenasFile.exists()) {
+                arenasFile.createNewFile();
+                YamlConfiguration seed = new YamlConfiguration();
+                seed.createSection("arenas"); // empty root
+                seed.save(arenasFile);
+            }
+        } catch (IOException e) {
+            plugin.getLogger().log(Level.SEVERE, "[UPR] Failed to prepare arenas.yml", e);
+        }
+    }
+
+    public Arena create(String id) {
+        String key = id.toLowerCase(Locale.ROOT);
+        if (arenas.containsKey(key)) {
+            throw new IllegalArgumentException("이미 존재하는 경기장 ID 입니다.");
+        }
+        Arena a = new Arena(key);
         arenas.put(key, a);
         save();
-        return true;
+        return a;
     }
 
-    public boolean delete(String name) {
-        Arena removed = arenas.remove(name.toLowerCase());
-        if (removed == null) return false;
+    public boolean exists(String id) {
+        return arenas.containsKey(id.toLowerCase(Locale.ROOT));
+    }
+
+    public Arena get(String id) {
+        return arenas.get(id.toLowerCase(Locale.ROOT));
+    }
+
+    public java.util.List<Arena> list() {
+        return new java.util.ArrayList<>(arenas.values());
+    }
+
+    public void set(String id, String point, Location loc) {
+        Arena a = get(id);
+        if (a == null) throw new IllegalArgumentException("없는 경기장 ID 입니다.");
+        if ("p1".equalsIgnoreCase(point)) a.setP1(loc);
+        else if ("p2".equalsIgnoreCase(point)) a.setP2(loc);
+        else throw new IllegalArgumentException("point 는 p1 또는 p2 이어야 합니다.");
         save();
-        return true;
     }
 
-    public boolean set(String name, String point, Location loc) {
-        Arena a = arenas.get(name.toLowerCase());
-        if (a == null) return false;
-        if ("p1".equalsIgnoreCase(point)) a.p1 = loc;
-        else if ("p2".equalsIgnoreCase(point)) a.p2 = loc;
-        else if ("stage".equalsIgnoreCase(point)) a.stage = loc;
-        else if ("spec".equalsIgnoreCase(point)) a.spec = loc;
-        else return false;
+    public void setEnabled(String id, boolean enabled) {
+        Arena a = get(id);
+        if (a == null) throw new IllegalArgumentException("없는 경기장 ID 입니다.");
+        a.setEnabled(enabled);
         save();
-        return true;
-    }
-
-    public boolean setEnabled(String name, boolean enabled) {
-        Arena a = arenas.get(name.toLowerCase());
-        if (a == null) return false;
-        a.enabled = enabled;
-        save();
-        return true;
-    }
-
-    public List<Arena> list() { return new ArrayList<>(arenas.values()); }
-
-    public Arena chooseRandomReady() {
-        List<Arena> ready = new ArrayList<>();
-        for (Arena a : arenas.values()) {
-            if (a.enabled && a.p1 != null && a.p2 != null) ready.add(a);
-        }
-        if (ready.isEmpty()) return null;
-        return ready.get(new Random().nextInt(ready.size()));
-    }
-
-    private Location readLoc(ConfigurationSection cs) {
-        if (cs == null) return null;
-        String worldName = cs.getString("world", null);
-        if (worldName == null) return null;
-        World w = Bukkit.getWorld(worldName);
-        if (w == null) return null;
-        double x = cs.getDouble("x"); double y = cs.getDouble("y"); double z = cs.getDouble("z");
-        float yaw = (float) cs.getDouble("yaw", 0.0);
-        float pitch = (float) cs.getDouble("pitch", 0.0);
-        return new Location(w, x, y, z, yaw, pitch);
-    }
-
-    private void writeLoc(String path, Location loc) {
-        if (loc == null) { conf.set(path, null); return; }
-        conf.set(path + ".world", loc.getWorld().getName());
-        conf.set(path + ".x", loc.getX());
-        conf.set(path + ".y", loc.getY());
-        conf.set(path + ".z", loc.getZ());
-        conf.set(path + ".yaw", loc.getYaw());
-        conf.set(path + ".pitch", loc.getPitch());
-    }
-
-
-    public int countEnabled(){
-        int n=0;
-        for (Arena a : arenas.values()){
-            if (a.enabled && a.p1!=null && a.p2!=null) n++;
-        }
-        return n;
     }
 }
