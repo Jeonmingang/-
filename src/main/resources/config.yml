@@ -1,0 +1,84 @@
+language: "ko"
+
+rating:
+  initial-elo: 1200
+  k-factor:
+    default: 32
+    high-bracket-k: 24
+    low-bracket-k: 40
+    high-threshold: 1800
+    low-threshold: 1000
+  draw-score: 0.5
+  diff-exp: 1.00
+  max-delta: 40
+  min-delta: 0
+  enable-streak: true
+  provisional-games: 20
+  provisional-multiplier: 1.5
+
+tiers:
+  - { name: "&7Bronze",   min-elo: 0,    color: "&7" }
+  - { name: "&fSilver",   min-elo: 1100, color: "&f" }
+  - { name: "&6Gold",     min-elo: 1300, color: "&6" }
+  - { name: "&bPlatinum", min-elo: 1500, color: "&b" }
+  - { name: "&3Diamond",  min-elo: 1700, color: "&3" }
+  - { name: "&dMaster",   min-elo: 1900, color: "&d" }
+  - { name: "&cGrandmaster", min-elo: 2100, color: "&c" }
+
+season:
+  enabled: true
+  ends-at-epoch-ms: 0
+  reset-mode: "FULL"
+  soft-carry: 0.25
+  snapshot-top-n: 10
+
+queue:
+  enable: true
+  base-threshold: 150
+  expand-per-second: 5
+  tick-period-ticks: 40
+  max-wait-seconds: 120
+
+
+match:
+  pre-countdown-seconds: 2
+  arena-required: true
+  on-match-found-commands:
+    - 'title {p1} title {"text":"매칭!","color":"gold"}'
+    - 'title {p1} subtitle {"text":"상대: {p2} (Elo {elo2} {tier2})","color":"yellow"}'
+    - 'title {p2} title {"text":"매칭!","color":"gold"}'
+    - 'title {p2} subtitle {"text":"상대: {p1} (Elo {elo1} {tier1})","color":"yellow"}'
+  on-battle-start-commands:
+    - "pokebattle {p1} {p2}"
+bans:
+  pokemon: ["Mewtwo","Rayquaza"]
+  items: ["BEDROCK","BARRIER"]
+  items-action: "BLOCK"
+
+auto-result-detection:
+  enable-chat-parse: false
+  victory-message-patterns:
+    - "(?i)\b(?<winner>[A-Za-z0-9_]+)\b .* (?:won|wins) .* \b(?<loser>[A-Za-z0-9_]+)\b"
+  draw-message-patterns:
+    - "(?i)\b(?<p1>[A-Za-z0-9_]+)\b .* draw .* \b(?<p2>[A-Za-z0-9_]+)\b"
+
+
+ui:
+  queue-actionbar:
+    enable: true
+    format: "&e대기열&7: &f{queue}&7명  &e경기장&7: &f{arenas}&7개  &e대기&7: &f{elapsed}s"
+    eta-seconds: 2
+battle:
+  block-commands: true
+  blocked-message: "&c배틀 중에는 명령어를 사용할 수 없습니다."
+  command-allowlist: ["msg","tell","r"]
+
+
+ui:
+  queue-actionbar:
+    enable: true
+    format: "&e대기열&7: &f{queue}&7명  &e경기장&7: &f{arenas}&7개  &e대기&7: &f{elapsed}s"
+    eta-seconds: 2
+# Battle watchdog
+battle:
+  max-seconds: 900  # 15분 초과시 강제 무승부 처리(플레이어 해제)
