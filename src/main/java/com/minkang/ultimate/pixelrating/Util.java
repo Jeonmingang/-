@@ -9,40 +9,70 @@ public class Util {
     }
 
     /**
-     * Very lenient helper to turn a JSON chat component (sometimes logged) into plain text.
-     * Avoids heavy regex/backslashes to stay compiler-safe on Java 8.
+     * Extremely lenient JSON-to-plain converter without regex or fragile escapes.
+     * - Strips section color codes (e.g., §a, §l)
+     * - Replaces newline characters with a space
+     * - Unescapes simple \" into "
+     * - If it looks like {"text":"..."} extracts the "text" value
      */
     public static String jsonToPlain(String json) {
         if (json == null) return "";
         String t = json;
 
-        // Remove Minecraft color codes using the section sign (§) if present.
-        // Example: "§a", "§l" ... we strip the pair.
+        // 1) Strip Minecraft color codes using the section sign (§) and next char
         StringBuilder sb = new StringBuilder(t.length());
         for (int i = 0; i < t.length(); i++) {
             char c = t.charAt(i);
             if (c == '§') {
-                i++; // skip next char as well if any
+                i++; // skip next char as well
                 continue;
             }
             sb.append(c);
         }
         t = sb.toString();
 
-        // Replace newlines with spaces for safety.
-        t = t.replace("\n", " ").replace("
-", " ").replace("", " ");
+        // 2) Replace literal "\n" with a space, and real newlines as well
+        //    Do it without regex and without special string escapes.
+        StringBuilder sb2 = new StringBuilder(t.length());
+        for (int i = 0; i < t.length(); i++) {
+            char c = t.charAt(i);
+            if (c == '\\') {
+                if (i + 1 < t.length() && t.charAt(i + 1) == 'n') {
+                    sb2.append(' ');
+                    i++; // skip 'n'
+                    continue;
+                }
+            }
+            if (c == '\n' || c == '\r') {
+                sb2.append(' ');
+            } else {
+                sb2.append(c);
+            }
+        }
+        t = sb2.toString();
 
-        // Unescape simple " into "
-        t = t.replace("\"", """);
+        // 3) Unescape simple \" into "
+        StringBuilder sb3 = new StringBuilder(t.length());
+        for (int i = 0; i < t.length(); i++) {
+            char c = t.charAt(i);
+            if (c == '\\') {
+                if (i + 1 < t.length() && t.charAt(i + 1) == '\"') {
+                    sb3.append('\"');
+                    i++; // skip the quote
+                    continue;
+                }
+            }
+            sb3.append(c);
+        }
+        t = sb3.toString();
 
-        // If it looks like a very simple JSON chat component, try to pull `"text":"..."`
-        // We intentionally avoid regex with escape sequences here.
-        String needle = ""text":"";
+        // 4) Try to pull "text":"..."
+        char dq = '\"';
+        String needle = "" + dq + "text" + dq + ":" + dq;
         int idx = t.indexOf(needle);
         if (idx >= 0) {
             int start = idx + needle.length();
-            int end = t.indexOf('"', start);
+            int end = t.indexOf(dq, start);
             if (end > start) {
                 t = t.substring(start, end);
             }
