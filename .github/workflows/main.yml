@@ -21,8 +21,8 @@ jobs:
           java-version: '8'
           cache: maven
 
-      - name: Build with Maven (quiet, skip tests)
-        run: mvn -q -DskipTests package
+      - name: Build with Maven (with ProtocolLib hook, quiet, skip tests)
+        run: mvn -q -DwithPLIB -DskipTests -U clean package
 
       - name: Package plugin & resources
         run: |
