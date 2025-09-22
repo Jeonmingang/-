@@ -1,7 +1,7 @@
 name: UltimatePixelmonRating
 main: com.minkang.ultimate.pixelrating.UltimatePixelmonRatingPlugin
 version: 1.4.5
-api-version: 1.4.5
+api-version: 1.16
 author: Minkang
 description: Pixelmon Elo + 티어 + 시즌 + 보상GUI + 아레나 + 결과/복귀
 commands:
