@@ -1,0 +1,24 @@
+name: UltimatePixelmonRating
+main: com.minkang.ultimate.pixelrating.UltimatePixelmonRatingPlugin
+version: 1.5.2
+api-version: 1.5.2
+author: Minkang
+description: Pixelmon Elo + 티어 + 시즌 + 보상GUI + 아레나 + 결과/복귀
+commands:
+  레이팅:
+    description: 픽셀몬 레이팅 시스템
+    usage: /레이팅 도움말
+  경쟁전:
+    description: 경쟁전(레이팅) 참가/취소
+    usage: /경쟁전 참가 | /경쟁전 취소
+permissions:
+  upr.admin:
+    default: op
+    description: 레이팅 관리자 권한
+  upr.battle.bypass:
+    default: op
+    description: 배틀 중 명령어 차단 우회
+
+softdepend:
+  - ProtocolLib
+
