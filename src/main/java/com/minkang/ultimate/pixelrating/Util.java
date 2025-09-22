@@ -9,25 +9,44 @@ public class Util {
     }
 
     /**
-     * Very lenient helper to turn a JSON chat component into plain text if such JSON sneaks into logs.
-     * It is NOT a full JSON parser; it's only used for display/tooling.
+     * Very lenient helper to turn a JSON chat component (sometimes logged) into plain text.
+     * Avoids heavy regex/backslashes to stay compiler-safe on Java 8.
      */
-    public static String jsonToPlain(String json){
+    public static String jsonToPlain(String json) {
         if (json == null) return "";
         String t = json;
 
-        // remove section sign color codes (e.g. §a)
-        t = t.replaceAll("\\u00A7.", "");
+        // Remove Minecraft color codes using the section sign (§) if present.
+        // Example: "§a", "§l" ... we strip the pair.
+        StringBuilder sb = new StringBuilder(t.length());
+        for (int i = 0; i < t.length(); i++) {
+            char c = t.charAt(i);
+            if (c == '§') {
+                i++; // skip next char as well if any
+                continue;
+            }
+            sb.append(c);
+        }
+        t = sb.toString();
 
-        // common escapes
-        t = t.replace("\\n", " ");
+        // Replace newlines with spaces for safety.
+        t = t.replace("\n", " ").replace("
+", " ").replace("", " ");
 
-        // unescape simple quotes
-        t = t.replace("\\"", """);
+        // Unescape simple " into "
+        t = t.replace("\"", """);
 
-        // extract the "text":"..."" from very simple JSON chat components if present
-        t = t.replaceAll("^\\s*\{.*?\"text\"\\s*:\\s*\"(.*?)\".*\}\\s*$", "$1");
-
+        // If it looks like a very simple JSON chat component, try to pull `"text":"..."`
+        // We intentionally avoid regex with escape sequences here.
+        String needle = ""text":"";
+        int idx = t.indexOf(needle);
+        if (idx >= 0) {
+            int start = idx + needle.length();
+            int end = t.indexOf('"', start);
+            if (end > start) {
+                t = t.substring(start, end);
+            }
+        }
         return t;
     }
 }
