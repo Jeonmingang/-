@@ -1,0 +1,13 @@
+name: UltimatePixelmonRating
+main: com.minkang.ultimate.pixelrating.UltimatePixelmonRatingPlugin
+version: 1.6.12
+api-version: 1.16
+commands:
+  레이팅:
+    aliases: [rating, elo]
+    description: Pixelmon Elo 레이팅 시스템
+    usage: /레이팅 도움말
+permissions:
+  upr.admin:
+    description: UPR 관리자 권한
+    default: op
