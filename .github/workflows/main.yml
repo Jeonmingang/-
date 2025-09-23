@@ -22,6 +22,12 @@ jobs:
           java-version: '8'
           cache: maven
 
+      - name: Install local ProtocolLib into Maven repo
+        run: |
+          if [ -f lib/ProtocolLib.jar ]; then
+            mvn -q install:install-file               -Dfile=lib/ProtocolLib.jar               -DgroupId=com.comphenix.protocol               -DartifactId=ProtocolLib               -Dversion=local               -Dpackaging=jar
+          fi
+
       - name: Build with Maven
         run: mvn -q -DskipTests clean package
 
