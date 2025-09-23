@@ -1,3 +1,0 @@
-# UltimatePixelmonRating - sample arenas configuration
-# 플러그인은 파일이 없어도 자동 생성하지만, CI에서 리소스 복사 단계가 있다면 이 파일이 필요합니다.
-arenas: {}
