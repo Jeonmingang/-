@@ -1,2 +1,0 @@
-package com.minkang.ultimate.pixelrating;
-public final class EloMath { private EloMath(){} public static int k(int e,int d,int hi,int lo,int hT,int lT){ if(e>=hT) return hi; if(e<=lT) return lo; return d; } }
