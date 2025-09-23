@@ -1,4 +1,4 @@
-name: Build UltimatePixelmonRating
+name: Build (Java 8 / 1.16.5)
 
 on:
   push:
@@ -10,36 +10,27 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up JDK 8
+      - name: Set up JDK 8 (Temurin)
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '8'
           cache: maven
 
-      - name: Build with Maven (with ProtocolLib hook, quiet, skip tests)
-        run: mvn -q -DwithPLIB -DskipTests -U clean package
+      - name: Build with Maven
+        run: mvn -q -DskipTests clean package
 
-      - name: Package plugin & resources
-        run: |
-          chmod +x ./build_and_package.sh || true
-          ./build_and_package.sh
-        shell: bash
-
-      - name: Upload JAR artifact
+      - name: Upload plugin JAR
         uses: actions/upload-artifact@v4
         with:
-          name: UltimatePixelmonRating-jar
+          name: UltimatePixelmonRating-${{ github.run_number }}
           path: |
-            target/UltimatePixelmonRating-*.jar
-
-      - name: Upload built bundle (out/)
-        uses: actions/upload-artifact@v4
-        with:
-          name: UltimatePixelmonRating-out
-          path: |
-            out/**
+            target/*.jar
+            !target/*-sources.jar
+            !target/*-javadoc.jar
+          if-no-files-found: error
