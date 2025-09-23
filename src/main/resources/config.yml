@@ -24,7 +24,26 @@ match:
   on-battle-start-commands:
     - "tellraw {p1} [{\"text\":\"배틀 시작!\",\"color\":\"gold\"}]"
     - "tellraw {p2} [{\"text\":\"배틀 시작!\",\"color\":\"gold\"}]"
+  # 네 서버는 이 명령으로 배틀이 걸립니다.
   battle-start-command: "pokebattle {p1} {p2}"
+auto-result-detection:
+  # 자동 결과 감지 켜기
+  enable-chat-parse: true
+
+  # (있으면 강력추천) ProtocolLib로 플레이어별 결과 메시지까지 확실히 포착
+  protocol-chat-hook: true
+
+  # 네 서버에 실제로 뜨는 한국어 결과 문구
+  korean:
+    victory: "배틀에서 이겼다!"
+    defeat:  "모든포켓몬이 쓰러졌다!"
+
+  # (방송형 공지용 백업 패턴 — 필요시 유지)
+  victory-message-patterns:
+    - '(?i)\b(?<winner>[A-Za-z0-9_가-힣]+)\b .* (?:won|wins|승리) .* \b(?<loser>[A-Za-z0-9_가-힣]+)\b'
+  draw-message-patterns:
+    - '(?i)\b(?<p1>[A-Za-z0-9_가-힣]+)\b .* (?:draw|무승부) .* \b(?<p2>[A-Za-z0-9_가-힣]+)\b'
+
 bans:
   pokemon: ["Mewtwo","Rayquaza"]
   items: ["BEDROCK","BARRIER"]
