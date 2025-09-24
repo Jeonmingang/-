@@ -1,6 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.minkang.ultimate</groupId>
@@ -28,11 +28,7 @@
       <id>forge</id>
       <url>https://maven.minecraftforge.net</url>
     </repository>
-    <!-- (선택) NeoForged 릴리스. EventBus 4.0.0 등 옛 아티팩트 미러 -->
-    <repository>
-      <id>neoforged-releases</id>
-      <url>https://maven.neoforged.net/releases</url>
-    </repository>
+    <!-- ※ neoforged-releases는 제거 -->
   </repositories>
 
   <dependencies>
@@ -44,14 +40,26 @@
       <scope>provided</scope>
     </dependency>
 
-    <!-- Forge EventBus: 1.16.5 라인에 맞춰 4.0.0으로 고정 (provided) -->
+    <!-- Forge EventBus: 1.16.5 라인에 맞춰 4.0.0 고정 (provided) -->
     <dependency>
       <groupId>net.minecraftforge</groupId>
       <artifactId>eventbus</artifactId>
       <version>4.0.0</version>
       <scope>provided</scope>
-      <!-- 전이 의존 제거: 애노테이션만 쓰므로 typetools/modlauncher를 굳이 받지 않음 -->
+      <!-- 전이 의존은 전부 차단: log4j/typetools/modlauncher 등 -->
       <exclusions>
+        <exclusion>
+          <groupId>org.apache.logging.log4j</groupId>
+          <artifactId>log4j-api</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.logging.log4j</groupId>
+          <artifactId>log4j-core</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.logging.log4j</groupId>
+          <artifactId>log4j-slf4j-impl</artifactId>
+        </exclusion>
         <exclusion>
           <groupId>net.jodah</groupId>
           <artifactId>typetools</artifactId>
@@ -63,7 +71,7 @@
       </exclusions>
     </dependency>
 
-    <!-- Pixelmon 9.1.13: CI에서 universal.jar를 install한 뒤 provided 로 참조 -->
+    <!-- Pixelmon 9.1.13: CI에서 universal.jar를 install 후 provided로 참조 -->
     <dependency>
       <groupId>com.pixelmonmod</groupId>
       <artifactId>pixelmon-1.16.5</artifactId>
