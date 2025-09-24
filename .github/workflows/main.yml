@@ -1,42 +1,44 @@
-name: Build (Java 8 / 1.16.5)
+name: Build
 
 on:
-  push:
-    branches: [ main, master ]
+  push: { branches: [ main, master ] }
   pull_request:
-    branches: [ main, master ]
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up JDK 8 (Temurin)
+      - name: Set up JDK 8
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '8'
-          cache: maven
 
-      - name: Install local ProtocolLib into Maven repo
+      - name: Download Pixelmon 9.1.13 universal (Modrinth CDN)
         run: |
-          if [ -f lib/ProtocolLib.jar ]; then
-            mvn -q install:install-file               -Dfile=lib/ProtocolLib.jar               -DgroupId=com.comphenix.protocol               -DartifactId=ProtocolLib               -Dversion=local               -Dpackaging=jar
-          fi
+          mkdir -p libs
+          curl -L -o libs/Pixelmon-1.16.5-9.1.13-universal.jar \
+            "https://cdn.modrinth.com/data/59ZceYlU/versions/CPLYWxEL/Pixelmon-1.16.5-9.1.13-universal.jar"
+          ls -lh libs
+        # 위 파일은 9.1.13 공식 릴리스 universal.jar 입니다. :contentReference[oaicite:4]{index=4}
+
+      - name: Install Pixelmon into local Maven (provided scope)
+        run: |
+          mvn -q install:install-file \
+            -Dfile=libs/Pixelmon-1.16.5-9.1.13-universal.jar \
+            -DgroupId=com.pixelmonmod \
+            -DartifactId=pixelmon-1.16.5 \
+            -Dversion=9.1.13 \
+            -Dpackaging=jar
 
       - name: Build with Maven
-        run: mvn -q -DskipTests clean package
+        run: mvn -B -U -DskipTests package
 
-      - name: Upload plugin JAR
+      - name: Upload plugin jar
         uses: actions/upload-artifact@v4
         with:
-          name: UltimatePixelmonRating-${{ github.run_number }}
-          path: |
-            target/*.jar
-            !target/*-sources.jar
-            !target/*-javadoc.jar
-          if-no-files-found: error
+          name: UltimatePixelmonRating-jar
+          path: target/UltimatePixelmonRating-*.jar
