@@ -1,0 +1,20 @@
+# Elo settings
+k-factor: 32
+initial-elo: 1000
+
+# Blocked commands during battle (lowercase, without '/')
+blocked-commands:
+  - home
+  - spawn
+  - tp
+  - warp
+
+# Debug logging
+debug: true
+
+# Season end (display only)
+season-end:
+  month: 12
+  day: 31
+  hour: 23
+  minute: 59
