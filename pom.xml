@@ -9,7 +9,7 @@
   <packaging>jar</packaging>
 
   <name>UltimatePixelmonRating</name>
-  <description>Pixelmon 9.1.13 Elo bridge (CatServer 1.16.5, Java 8) – universal JAR compatible</description>
+  <description>Pixelmon 9.1.13 Elo bridge (CatServer 1.16.5, Java 8)</description>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -29,29 +29,31 @@
   </repositories>
 
   <dependencies>
-    <!-- Bukkit API -->
+    <!-- Spigot/Bukkit API: provided -->
     <dependency>
-      <groupId>org.spigotmc</</groupId>
+      <groupId>org.spigotmc</groupId>
       <artifactId>spigot-api</artifactId>
       <version>1.16.5-R0.1-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
 
-    <!-- Forge EventBus (annotation): provided -->
+    <!-- Forge EventBus annotation: provided -->
     <dependency>
       <groupId>net.minecraftforge</groupId>
       <artifactId>eventbus</artifactId>
       <version>6.0.5</version>
       <scope>provided</scope>
     </dependency>
+    <!-- ↑ eventbus 6.0.5는 공식 공개 아티팩트입니다. :contentReference[oaicite:1]{index=1} -->
 
-    <!-- Pixelmon 9.1.13: provided; CI installs it into local Maven -->
+    <!-- Pixelmon 9.1.13: provided (CI에서 universal.jar를 install하여 제공) -->
     <dependency>
       <groupId>com.pixelmonmod</groupId>
       <artifactId>pixelmon-1.16.5</artifactId>
       <version>9.1.13</version>
       <scope>provided</scope>
     </dependency>
+    <!-- ↑ Pixelmon 9.1.13 universal.jar 파일은 Modrinth에 공개되어 있습니다. :contentReference[oaicite:2]{index=2} -->
   </dependencies>
 
   <build>
