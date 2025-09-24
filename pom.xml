@@ -18,13 +18,20 @@
   </properties>
 
   <repositories>
+    <!-- Spigot API -->
     <repository>
       <id>spigot-repo</id>
       <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
     </repository>
+    <!-- Forge 공식 Maven -->
     <repository>
       <id>forge</id>
       <url>https://maven.minecraftforge.net</url>
+    </repository>
+    <!-- (선택) NeoForged 릴리스. EventBus 4.0.0 등 옛 아티팩트 미러 -->
+    <repository>
+      <id>neoforged-releases</id>
+      <url>https://maven.neoforged.net/releases</url>
     </repository>
   </repositories>
 
@@ -37,23 +44,32 @@
       <scope>provided</scope>
     </dependency>
 
-    <!-- Forge EventBus annotation: provided -->
+    <!-- Forge EventBus: 1.16.5 라인에 맞춰 4.0.0으로 고정 (provided) -->
     <dependency>
       <groupId>net.minecraftforge</groupId>
       <artifactId>eventbus</artifactId>
-      <version>6.0.5</version>
+      <version>4.0.0</version>
       <scope>provided</scope>
+      <!-- 전이 의존 제거: 애노테이션만 쓰므로 typetools/modlauncher를 굳이 받지 않음 -->
+      <exclusions>
+        <exclusion>
+          <groupId>net.jodah</groupId>
+          <artifactId>typetools</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>cpw.mods</groupId>
+          <artifactId>modlauncher</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
-    <!-- ↑ eventbus 6.0.5는 공식 공개 아티팩트입니다. :contentReference[oaicite:1]{index=1} -->
 
-    <!-- Pixelmon 9.1.13: provided (CI에서 universal.jar를 install하여 제공) -->
+    <!-- Pixelmon 9.1.13: CI에서 universal.jar를 install한 뒤 provided 로 참조 -->
     <dependency>
       <groupId>com.pixelmonmod</groupId>
       <artifactId>pixelmon-1.16.5</artifactId>
       <version>9.1.13</version>
       <scope>provided</scope>
     </dependency>
-    <!-- ↑ Pixelmon 9.1.13 universal.jar 파일은 Modrinth에 공개되어 있습니다. :contentReference[oaicite:2]{index=2} -->
   </dependencies>
 
   <build>
